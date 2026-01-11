@@ -57,6 +57,7 @@ app.get("/api/sum", async (req: Request, res: Response) => {
       rockNumber,
       paperNumber,
       scissorNumber,
+      message: "Rock, Paper, Scissor have sent their regards!",
       duration: `${duration}ms`,
       timestamp: new Date().toISOString(),
     });
