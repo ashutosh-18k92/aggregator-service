@@ -22,8 +22,21 @@ app.get("/ready", (req: Request, res: Response) => {
   res.json({ status: "ok", service: SERVICE_NAME });
 });
 
+function getWinner(numbers: { rock: number; paper: number; scissor: number }): string {
+  const { rock, paper, scissor } = numbers;
+  if (rock > paper && rock > scissor) {
+    return "rock";
+  } else if (paper > rock && paper > scissor) {
+    return "paper";
+  } else if (scissor > rock && scissor > paper) {
+    return "scissor";
+  } else {
+    return "draw";
+  }
+}
+
 // Main endpoint - calls rock, paper, and scissor services, sums the results
-app.get("/api/sum", async (req: Request, res: Response) => {
+app.get("/api/play", async (req: Request, res: Response) => {
   const startTime = Date.now();
   console.log(`[${new Date().toISOString()}] [${SERVICE_NAME}] Received request to /api/sum`);
   console.log("rock service @", ROCK_SERVICE_URL);
@@ -41,9 +54,9 @@ app.get("/api/sum", async (req: Request, res: Response) => {
       axios.get(`${SCISSOR_SERVICE_URL}/api/random`),
     ]);
 
-    const rockNumber = rockResponse.data.number;
-    const paperNumber = paperResponse.data.number;
-    const scissorNumber = scissorResponse.data.number;
+    const rockNumber = Number(rockResponse.data.number);
+    const paperNumber = Number(paperResponse.data.number);
+    const scissorNumber = Number(scissorResponse.data.number);
 
     console.log(
       `[${new Date().toISOString()}] [${SERVICE_NAME}] Rock: ${rockNumber}, Paper: ${paperNumber}, Scissor: ${scissorNumber}`,
@@ -52,6 +65,7 @@ app.get("/api/sum", async (req: Request, res: Response) => {
     // Calculate sum
     const sum = rockNumber + paperNumber + scissorNumber;
     const duration = Date.now() - startTime;
+    const winner = getWinner({ rock: rockNumber, paper: paperNumber, scissor: scissorNumber });
 
     console.log(
       `[${new Date().toISOString()}] [${SERVICE_NAME}] Calculated sum: ${sum}, Duration: ${duration}ms`,
@@ -59,6 +73,7 @@ app.get("/api/sum", async (req: Request, res: Response) => {
 
     res.json({
       sum,
+      winner,
       rockNumber,
       paperNumber,
       scissorNumber,
