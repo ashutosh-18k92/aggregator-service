@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Reference base configuration
+resources:
+  - ../../base
+
+# Production namespace
+namespace: super-fortnight
+
+# ConfigMap for production environment
+configMapGenerator:
+  - name: service-config
+    behavior: merge
+    literals:
+      - LOG_LEVEL=error
+      - NODE_ENV=production
+
+# Strategic merge patches
+patchesStrategicMerge:
+  - patches/deployment-affinity.yaml
+  - patches/hpa-scaling.yaml
+  - patches/production-resources.yaml
