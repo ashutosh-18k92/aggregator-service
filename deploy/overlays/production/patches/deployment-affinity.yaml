@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregator-api-v1
+spec:
+  template:
+    spec:
+      # Node and zone affinity for high availability
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            # Node spreading (weight 100 - higher priority)
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - aggregator-api-v1
+                topologyKey: kubernetes.io/hostname
+
+            # Zone spreading (weight 50 - lower priority)
+            - weight: 50
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - aggregator-api-v1
+                topologyKey: topology.kubernetes.io/zone
