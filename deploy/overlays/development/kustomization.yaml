@@ -25,5 +25,11 @@ configMapGenerator:
 
 # Patches for development
 patches:
-  - path: patches/deployment.yaml
-  - path: patches/service.yaml
+  - target:
+      kind: Deployment
+      name: aggregator-api-v1
+    path: patches/deployment.yaml
+  - target:
+      kind: Service
+      name: aggregator-api-v1-service
+    path: patches/service.yaml
