@@ -1,0 +1,3 @@
+# Production Environment Configuration
+env: production
+namespace: super-fortnight
