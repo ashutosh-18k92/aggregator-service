@@ -1,0 +1,26 @@
+# Production environment values
+# Inherits from base/values.yaml
+
+# Environment-specific overrides
+env:
+  LOG_LEVEL: "error"
+  NODE_ENV: "production"
+
+# Higher resources for production
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Multiple replicas for production
+replicaCount: 3
+
+# Enable autoscaling
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70

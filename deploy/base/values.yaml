@@ -1,3 +1,7 @@
+# Chart version configuration
+# Teams control which version of the base API chart to use
+chartVersion: "0.1.0"
+
 # Aggregator service-specific configuration
 # Only overrides from base/api/values.yaml
 

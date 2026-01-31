@@ -1,0 +1,10 @@
+# Development Environment Configuration
+# This file is read by ArgoCD ApplicationSet Git Files Generator
+
+env: dev
+namespace: super-fortnight-dev
+
+# Chart configuration - controlled by feature team
+chartRepo: https://github.com/ashutosh-18k92/sf-helm-registry.git
+chartVersion: "0.1.0" # Team can upgrade this independently
+chartPath: api

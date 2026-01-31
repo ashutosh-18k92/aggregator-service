@@ -16,8 +16,8 @@ configMapGenerator:
       - LOG_LEVEL=error
       - NODE_ENV=production
 
-# Strategic merge patches
-patchesStrategicMerge:
-  - patches/deployment-affinity.yaml
-  - patches/hpa-scaling.yaml
-  - patches/production-resources.yaml
+# Patches for production
+patches:
+  - path: patches/deployment-affinity.yaml
+  - path: patches/hpa-scaling.yaml
+  - path: patches/production-resources.yaml

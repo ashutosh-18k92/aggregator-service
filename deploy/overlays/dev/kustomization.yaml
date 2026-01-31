@@ -17,16 +17,5 @@ configMapGenerator:
       - NODE_ENV=development
 
 # Patches for development
-patchesStrategicMerge:
-  - |-
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: aggregator-api-v1
-    spec:
-      replicas: 1
-      template:
-        spec:
-          containers:
-            - name: api
-              imagePullPolicy: Always
+patches:
+  - path: patches/deployment.yaml
