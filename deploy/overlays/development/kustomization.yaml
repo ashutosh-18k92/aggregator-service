@@ -26,3 +26,4 @@ configMapGenerator:
 # Patches for development
 patches:
   - path: patches/deployment.yaml
+  - path: patches/service.yaml
