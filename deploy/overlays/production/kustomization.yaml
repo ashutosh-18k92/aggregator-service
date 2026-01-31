@@ -5,7 +5,7 @@ kind: Kustomization
 helmCharts:
   - name: api
     repo: https://ashutosh-18k92.github.io/sf-helm-charts/
-    version: v0.2.0 # Production can use different version
+    version: v0.1.2 # Production can use different version
     releaseName: aggregator
     namespace: super-fortnight
     valuesFile: values.yaml
