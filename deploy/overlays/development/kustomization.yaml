@@ -5,7 +5,7 @@ kind: Kustomization
 helmCharts:
   - name: api
     repo: https://ashutosh-18k92.github.io/sf-helm-charts/
-    version: v0.1.4
+    version: v0.1.5
     releaseName: aggregator
     namespace: super-fortnight # -dev
     valuesFile: values.yaml
@@ -17,6 +17,7 @@ namespace: super-fortnight # -dev
 # ConfigMap for development
 configMapGenerator:
   - name: service-config
+    namespace: super-fortnight
     literals:
       - PORT=3000
       - SERVICE_NAME=aggregator-service
