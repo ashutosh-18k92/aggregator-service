@@ -6,7 +6,13 @@ containerPort: 3000
 
 # Image configuration
 image:
-  repository: "aggregator-service"
+  repository: "ashutoshkumar18/aggregator-service"
+  tag: "dev-latest"
+  pullPolicy: Always # Always pull for dev to get latest changes
+
+# Docker Hub authentication
+imagePullSecrets:
+  - name: dockerhub-secret
 
 # Environment variables
 env:

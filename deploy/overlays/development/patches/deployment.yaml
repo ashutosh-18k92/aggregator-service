@@ -7,5 +7,5 @@ spec:
   template:
     spec:
       containers:
-        - name: api
+        - name: aggregator-api-v1-dev
           imagePullPolicy: Always

@@ -6,7 +6,13 @@ containerPort: 3000
 
 # Image configuration
 image:
-  repository: "aggregator-service"
+  repository: "ashutoshkumar18/aggregator-service"
+  tag: "latest"
+  pullPolicy: IfNotPresent # Use cached images in prod
+
+# Docker Hub authentication
+imagePullSecrets:
+  - name: dockerhub-secret
 
 # Environment variables
 env:
