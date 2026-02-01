@@ -24,11 +24,9 @@ configMapGenerator:
       - NODE_ENV=development
 
 # Patches for development
-# patches:
-#   - target:
-#       kind: Deployment
-#       name: aggregator-api-v1
-#     path: patches/deployment.yaml
+patches:
+  - patches/deployment.yaml
+  - patches/virtual-service.yaml
 # - target:
 #     kind: Service
 #     name: aggregator-api-v1-service
