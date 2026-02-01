@@ -1,10 +1,37 @@
 # Production environment values
-# Inherits from base/values.yaml
+# Combines base service config + production-specific overrides
 
-# Environment-specific overrides
+# Container port configuration
+containerPort: 3000
+
+# Image configuration
+image:
+  repository: "aggregator-service"
+
+# Environment variables
 env:
+  PORT: "3000"
+  SERVICE_NAME: "aggregator-service"
   LOG_LEVEL: "error"
   NODE_ENV: "production"
+
+# Service configuration
+service:
+  targetPort: 3000
+
+# VirtualService configuration
+virtualService:
+  hosts:
+    - aggregator
+
+# Health check ports
+healthCheck:
+  livenessProbe:
+    httpGet:
+      port: 3000
+  readinessProbe:
+    httpGet:
+      port: 3000
 
 # Higher resources for production
 resources:
