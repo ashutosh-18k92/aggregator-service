@@ -26,9 +26,11 @@ configMapGenerator:
 
 # Patches for development
 patches:
-  - patches/deployment.yaml
-  - patches/virtual-service.yaml
-# - target:
-#     kind: Service
-#     name: aggregator-api-v1-service
-#   path: patches/service.yaml
+  - target:
+      kind: Deployment
+      name: aggregator-api-v1
+    path: patches/deployment.yaml
+  - target:
+      kind: VirtualService
+      name: aggregator-api-v1-virtualservice
+    path: patches/virtual-service.yaml
