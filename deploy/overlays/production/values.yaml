@@ -1,6 +1,6 @@
 # Production environment values
 # Combines base service config + production-specific overrides
-
+environment: production
 # Container port configuration
 containerPort: 3000
 

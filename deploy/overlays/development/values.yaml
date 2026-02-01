@@ -1,6 +1,6 @@
 # Dev environment values
 # Combines base service config + development-specific overrides
-
+environment: development
 # Container port configuration
 containerPort: 3000
 
@@ -29,6 +29,7 @@ service:
 virtualService:
   hosts:
     - aggregator
+  domain: "api.local"
 
 # Health check ports
 healthCheck:
