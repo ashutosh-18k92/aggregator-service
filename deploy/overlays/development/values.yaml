@@ -30,6 +30,8 @@ virtualService:
   hosts:
     - aggregator
   domain: "api.local"
+  gateways:
+    - super-fortnight-gateway
 
 # Health check ports
 healthCheck:
