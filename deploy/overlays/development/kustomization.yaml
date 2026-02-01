@@ -29,7 +29,7 @@ patches:
       kind: Deployment
       name: aggregator-api-v1
     path: patches/deployment.yaml
-  - target:
-      kind: Service
-      name: aggregator-api-v1-service
-    path: patches/service.yaml
+  # - target:
+  #     kind: Service
+  #     name: aggregator-api-v1-service
+  #   path: patches/service.yaml
