@@ -4,15 +4,3 @@ metadata:
   name: aggregator-api-v1
 spec:
   replicas: 1
-  containers:
-  #   volumeMounts:
-  #     - name: config-volume
-  #       mountPath: /etc/config
-  #       readOnly: true
-  # volumes:
-  #   - name: config-volume
-  #     configMap:
-  #       name: service-config
-  #       items:
-  #         - key: configmap.yaml
-  #           path: service-config.yaml
