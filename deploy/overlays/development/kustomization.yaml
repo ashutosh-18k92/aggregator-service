@@ -12,16 +12,24 @@ helmCharts:
     includeCRDs: false
 
 # Namespace
-namespace: super-fortnight # -dev
+# Global namespace override removed to allow VirtualService to reside in istio-system
+# while other resources stay in super-fortnight as defined in helmCharts.
 
 # ConfigMap for development
 configMapGenerator:
   - name: service-config
-    literals:
-      - PORT=3000
-      - SERVICE_NAME=aggregator-service
-      - LOG_LEVEL=debug
-      - NODE_ENV=development
+    namespace: super-fortnight
+    files:
+      - patches/configmap.yaml
+    options:
+      disableNameSuffixHash: true
+  # - name: service-config
+  #   namespace: super-fortnight
+  #   literals:
+  #     - PORT=3000
+  #     - SERVICE_NAME=aggregator-service
+  #     - LOG_LEVEL=debug
+  #     - NODE_ENV=development
 
 # Patches for development
 patches:
