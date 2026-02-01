@@ -53,3 +53,16 @@ resources:
 
 # Single replica for dev
 replicaCount: 1
+
+volumeMounts:
+  - name: config-volume
+    mountPath: /etc/config
+    readOnly: true
+
+volumes:
+  - name: config-volume
+    configMap:
+      name: service-config
+      items:
+        - key: configmap.yaml
+          path: service-config.yaml
