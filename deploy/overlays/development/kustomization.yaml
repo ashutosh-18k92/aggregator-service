@@ -29,8 +29,8 @@ patches:
   - target:
       kind: Deployment
       name: aggregator-api-v1
-    path: patches/deployment.yaml
+      path: patches/deployment.yaml
   - target:
       kind: VirtualService
       name: aggregator-api-v1-virtualservice
-    path: patches/virtual-service.yaml
+      path: patches/virtual-service.yaml
