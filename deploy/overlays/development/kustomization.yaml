@@ -23,7 +23,6 @@ configMapGenerator:
       - patches/configmap.yaml
     options:
       disableNameSuffixHash: true
-    generatorOptions:
       annotations:
         argocd.argoproj.io/sync-options: Replace=true
   # - name: service-config
