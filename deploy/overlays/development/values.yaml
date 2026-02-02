@@ -1,10 +1,53 @@
 # Dev environment values
-# Inherits from base/values.yaml
+# Combines base service config + development-specific overrides
 
-# Environment-specific overrides
+# Business/Service Identity
+app:
+  name: aggregator-service
+  component: api
+  partOf: superfortnight
+
+environment: development
+# Container port configuration
+containerPort: 3000
+
+# Image configuration
+image:
+  repository: "ashutoshkumar18/aggregator-service"
+  tag: "dev-latest"
+  pullPolicy: Always # Always pull for dev to get latest changes
+
+# Docker Hub authentication
+imagePullSecrets:
+  - name: dockerhub-secret
+
+# Environment variables
 env:
+  PORT: "3000"
+  SERVICE_NAME: "aggregator-service"
   LOG_LEVEL: "debug"
   NODE_ENV: "development"
+
+# Service configuration
+service:
+  targetPort: 3000
+
+# VirtualService configuration
+virtualService:
+  hosts:
+    - aggregator
+  domain: "api.local"
+  gateways:
+    - super-fortnight-gateway
+
+# Health check ports
+healthCheck:
+  livenessProbe:
+    httpGet:
+      port: 3000
+  readinessProbe:
+    httpGet:
+      port: 3000
 
 # Lower resources for dev
 resources:
@@ -17,3 +60,16 @@ resources:
 
 # Single replica for dev
 replicaCount: 1
+
+volumeMounts:
+  - name: config-volume
+    mountPath: /etc/config
+    readOnly: true
+
+volumes:
+  - name: config-volume
+    configMap:
+      name: service-config
+      items:
+        - key: configmap.yaml
+          path: service-config.yaml

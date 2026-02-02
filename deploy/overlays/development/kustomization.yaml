@@ -5,25 +5,41 @@ kind: Kustomization
 helmCharts:
   - name: api
     repo: https://ashutosh-18k92.github.io/sf-helm-charts/
-    version: v0.1.0 # Dev environment uses v0.1.0
+    version: v0.1.6
     releaseName: aggregator
     namespace: super-fortnight # -dev
     valuesFile: values.yaml
     includeCRDs: false
 
 # Namespace
-namespace: super-fortnight # -dev
+# Global namespace override removed to allow VirtualService to reside in istio-system
+# while other resources stay in super-fortnight as defined in helmCharts.
 
 # ConfigMap for development
 configMapGenerator:
   - name: service-config
-    literals:
-      - PORT=3000
-      - SERVICE_NAME=aggregator-service
-      - LOG_LEVEL=debug
-      - NODE_ENV=development
+    namespace: super-fortnight
+    files:
+      - patches/configmap.yaml
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        argocd.argoproj.io/sync-options: Replace=true
+  # - name: service-config
+  #   namespace: super-fortnight
+  #   literals:
+  #     - PORT=3000
+  #     - SERVICE_NAME=aggregator-service
+  #     - LOG_LEVEL=debug
+  #     - NODE_ENV=development
 
 # Patches for development
 patches:
-  - path: patches/deployment.yaml
-  - path: patches/service.yaml
+  - target:
+      kind: Deployment
+      name: aggregator-api-v1
+    path: patches/deployment.yaml
+  - target:
+      kind: VirtualService
+      name: aggregator-api-v1-virtualservice
+    path: patches/virtual-service.yaml

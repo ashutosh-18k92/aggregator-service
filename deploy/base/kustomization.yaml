@@ -6,7 +6,7 @@ helmCharts:
   - name: api
     repo: https://ashutosh-18k92.github.io/sf-helm-charts/
     # Note: Version will be overridden by environment-specific kustomization
-    version: v0.1.0
+    version: v0.1.2
     releaseName: aggregator
     namespace: super-fortnight
     valuesFile: values.yaml
