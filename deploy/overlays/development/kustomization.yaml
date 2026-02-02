@@ -3,7 +3,7 @@ kind: Kustomization
 
 # Helm chart inflation - ArgoCD handles this with --enable-helm
 helmCharts:
-  - name: api
+  - name: aggregator
     repo: https://ashutosh-18k92.github.io/aggregator-service/
     version: v0.2.0
     releaseName: aggregator
