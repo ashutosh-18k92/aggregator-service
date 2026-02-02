@@ -14,17 +14,66 @@ The aggregator service is a microservice that aggregates results from rock, pape
 aggregator-service/
 ├── src/                    # Application code
 │   └── index.ts
-├── deploy/                 # Kubernetes deployment (Kustomize)
-│   ├── base/
-│   │   ├── kustomization.yaml
-│   │   └── values.yaml
+├── charts/                 # Service-specific Helm chart
+│   └── aggregator/
+│       ├── Chart.yaml
+│       ├── values.yaml
+│       ├── values.schema.json
+│       ├── README.md
+│       └── templates/
+├── deploy/                 # Kubernetes deployment (Kustomize overlays)
 │   └── overlays/
-│       ├── dev/
+│       ├── development/
+│       │   ├── kustomization.yaml
+│       │   ├── values.yaml
+│       │   └── patches/
+│       ├── staging/
 │       └── production/
 ├── package.json
 ├── tsconfig.json
 └── README.md
 ```
+
+## Architecture: Service-Specific Helm Charts
+
+This service uses a **service-specific Helm chart** approach, which provides:
+
+✅ **Team Ownership**: The aggregator team owns and controls the `charts/aggregator/` chart  
+✅ **Base Configuration**: `charts/aggregator/values.yaml` is the source of truth for base config  
+✅ **Environment Overlays**: Kustomize overlays provide environment-specific customization  
+✅ **Chart Distribution**: Published via GitHub Pages for versioning and distribution  
+✅ **Dependency Management**: Can declare dependencies on other service charts
+
+### How It Works
+
+1. **Service Chart** (`charts/aggregator/`): Contains the base Helm chart for this service
+   - Owned and maintained by the Aggregator Team
+   - Defines default values, templates, and schema
+   - Published to GitHub Pages for distribution
+
+2. **Environment Overlays** (`deploy/overlays/`): Kustomize overlays for each environment
+   - Reference the service chart via Helm
+   - Provide environment-specific values
+   - Apply patches for environment-specific customization
+
+3. **ArgoCD Integration**: ArgoCD ApplicationSets reference the service chart
+   - Single-source approach (Kustomize + Helm)
+   - Automatic sync and deployment
+   - Environment-specific configurations
+
+### Benefits Over Previous Approach
+
+**Previous**: Kustomize tried to reference a remote Helm chart from `sf-helm-charts` repository  
+**Problem**: Kustomize limitations with remote Helm charts
+
+**Current**: Each service has its own Helm chart  
+**Benefits**:
+
+- ✅ No Kustomize limitations with remote resources
+- ✅ Team autonomy and ownership
+- ✅ Independent versioning and evolution
+- ✅ Proper Helm dependency management
+- ✅ `api` chart in `sf-helm-charts` is now just a template for new services
 
 ## Application Development
 
@@ -65,111 +114,309 @@ SCISSOR_SERVICE_URL=http://localhost:3003    # Scissor service endpoint
 - **GET /ready** - Readiness check
 - **GET /api/play** - Main endpoint (calls rock, paper, scissor services)
 
-## Kubernetes Deployment
+## Helm Chart
 
-This service uses **Helm + Kustomize hybrid** approach for deployment.
-
-### Base Chart
-
-The service references the base API chart from GitHub:
-
-- **Repository**: https://github.com/ashutosh-18k92/sf-helm-registry.git
-- **Chart**: `api`
-- **Version**: `0.1.0`
-
-### Deploy Configuration
+### Chart Structure
 
 ```
-deploy/
-├── base/
-│   ├── kustomization.yaml    # References GitHub chart
-│   └── values.yaml           # Service-specific values
-└── overlays/
-    ├── dev/                  # Development environment
-    └── production/           # Production environment
-        └── patches/          # Production patches
+charts/aggregator/
+├── Chart.yaml              # Chart metadata and version
+├── values.yaml             # Default values (base configuration)
+├── values.schema.json      # Values validation schema
+├── README.md               # Chart documentation
+└── templates/              # Kubernetes resource templates
+    ├── deployment.yaml
+    ├── service.yaml
+    ├── hpa.yaml
+    ├── istioVirtualService.yaml
+    ├── serviceAccount.yaml
+    └── _helpers.tpl
 ```
 
-### Deployment
+### Base Values
 
-#### Via ArgoCD (Recommended)
+The `charts/aggregator/values.yaml` file contains the base configuration:
 
 ```yaml
-# ArgoCD Application
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: aggregator-prod
-spec:
-  source:
-    repoURL: https://github.com/your-org/aggregator-service.git
-    targetRevision: main
-    path: deploy/overlays/production
-    kustomize:
-      version: v5.0.0
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: super-fortnight
+# Business/Service Identity
+app:
+  name: aggregator-service
+  component: api
+  partOf: superfortnight
+
+# Container configuration
+containerPort: 3000
+replicaCount: 1
+
+# Image configuration
+image:
+  repository: "ashutoshkumar18/aggregator-service"
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# Environment variables
+env:
+  PORT: "3000"
+  SERVICE_NAME: "aggregator-service"
+
+# Health checks
+healthCheck:
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 3000
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 3000
+
+# Resources
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"
 ```
 
-#### Manual Deployment
+### Testing the Chart
 
 ```bash
-# Render manifests
-kustomize build deploy/overlays/production
+# Render chart with default values
+helm template aggregator ./charts/aggregator
+
+# Render with development values
+helm template aggregator ./charts/aggregator \
+  -f deploy/overlays/development/values.yaml
+
+# Validate chart
+helm lint ./charts/aggregator
+
+# Package chart
+helm package ./charts/aggregator
+```
+
+## Deployment
+
+### Environment Overlays
+
+Each environment has its own overlay in `deploy/overlays/`:
+
+```
+deploy/overlays/
+├── development/
+│   ├── kustomization.yaml    # References aggregator chart
+│   ├── values.yaml           # Dev-specific values
+│   └── patches/              # Dev-specific patches
+├── staging/
+└── production/
+```
+
+### Development Overlay
+
+**File**: `deploy/overlays/development/kustomization.yaml`
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+helmCharts:
+  - name: aggregator
+    repo: https://ashutosh-18k92.github.io/aggregator-service
+    releaseName: aggregator-service
+    namespace: super-fortnight-dev
+    valuesFile: values.yaml
+    version: 0.1.0
+    includeCRDs: false
+```
+
+**File**: `deploy/overlays/development/values.yaml`
+
+```yaml
+app:
+  name: aggregator-service
+  component: api
+  partOf: superfortnight
+
+environment: development
+
+image:
+  tag: "dev-latest"
+  pullPolicy: Always
+
+env:
+  LOG_LEVEL: "debug"
+  NODE_ENV: "development"
+
+autoscaling:
+  enabled: false
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+```
+
+### ArgoCD Deployment
+
+**File**: `gitops-v2/argocd/__test_apps__/aggregator-appset-single-source.yaml`
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: aggregator-service
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/ashutosh-18k92/aggregator-service.git
+        revision: main
+        files:
+          - path: "deploy/environments/*.yaml"
+
+  template:
+    metadata:
+      name: "aggregator-service-{{.env}}"
+    spec:
+      project: default
+
+      # Single source: Kustomize overlay (includes Helm chart + patches)
+      source:
+        repoURL: https://github.com/ashutosh-18k92/aggregator-service.git
+        targetRevision: "{{.env}}"
+        path: deploy/overlays/{{.env}}
+        kustomize: {} # Uses global --enable-helm from argocd-cm
+
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: "{{.namespace}}"
+
+      syncPolicy:
+        automated:
+          enabled: true
+          prune: true
+          selfHeal: true
+```
+
+### Manual Deployment
+
+```bash
+# Render manifests for development
+kustomize build --enable-helm deploy/overlays/development
+
+# Deploy to development
+kustomize build --enable-helm deploy/overlays/development | kubectl apply -f -
 
 # Deploy to production
-kustomize build deploy/overlays/production | kubectl apply -f -
-
-# Deploy to dev
-kustomize build deploy/overlays/dev | kubectl apply -f -
+kustomize build --enable-helm deploy/overlays/production | kubectl apply -f -
 ```
 
-### Updating Base Chart
+## Chart Publishing (GitHub Pages)
 
-When the platform team releases a new base chart version:
+The aggregator chart is published to GitHub Pages for distribution:
 
 ```bash
-cd deploy/base
-vim kustomization.yaml
-# Change: version: 0.1.0 → version: 0.2.0
+# Package the chart
+helm package charts/aggregator
 
-# Test
-kustomize build ../overlays/production
+# Move to gh-pages branch
+git checkout gh-pages
+mv aggregator-*.tgz charts/
+
+# Update index
+helm repo index charts/ --url https://ashutosh-18k92.github.io/aggregator-service/charts
+
+# Commit and push
+git add charts/
+git commit -m "Release aggregator chart v0.1.0"
+git push origin gh-pages
+```
+
+**Chart URL**: `https://ashutosh-18k92.github.io/aggregator-service`
+
+## Updating the Service
+
+### Update Application Code
+
+```bash
+# Make changes to src/
+vim src/index.ts
+
+# Build and test locally
+npm run build
+npm test
 
 # Commit
-git add .
-git commit -m "Upgrade to API chart v0.2.0"
+git add src/
+git commit -m "Add new feature"
+```
+
+### Update Chart
+
+```bash
+# Update chart version
+vim charts/aggregator/Chart.yaml
+# Bump version: 0.1.0 → 0.1.1
+
+# Update values if needed
+vim charts/aggregator/values.yaml
+
+# Test chart
+helm lint charts/aggregator
+helm template aggregator charts/aggregator
+
+# Commit
+git add charts/
+git commit -m "Update chart to v0.1.1"
+```
+
+### Update Environment Configuration
+
+```bash
+# Update development values
+vim deploy/overlays/development/values.yaml
+
+# Update image tag
+# image.tag: "dev-latest" → "v1.1.0"
+
+# Test rendering
+kustomize build --enable-helm deploy/overlays/development
+
+# Commit
+git add deploy/
+git commit -m "Update dev environment to v1.1.0"
 git push
 ```
 
-### Custom Configuration
+ArgoCD will automatically sync the changes.
 
-To add service-specific configuration:
+## Chart Dependencies (Future)
 
-```bash
-cd deploy/overlays/production
+The aggregator service can declare dependencies on other services:
 
-# Create patch
-cat > patches/custom-config.yaml <<EOF
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: aggregator-api-v1
-spec:
-  template:
-    spec:
-      containers:
-        - name: api
-          env:
-            - name: CUSTOM_SETTING
-              value: "enabled"
-EOF
+**File**: `charts/aggregator/Chart.yaml`
 
-# Add to kustomization
-vim kustomization.yaml
-# Add: - patches/custom-config.yaml
+```yaml
+apiVersion: v2
+name: aggregator
+version: 0.2.0
+appVersion: "v1"
+
+dependencies:
+  - name: rock-service
+    version: "0.1.0"
+    repository: "https://ashutosh-18k92.github.io/rock-service"
+  - name: paper-service
+    version: "0.1.0"
+    repository: "https://ashutosh-18k92.github.io/paper-service"
+  - name: scissor-service
+    version: "0.1.0"
+    repository: "https://ashutosh-18k92.github.io/scissor-service"
 ```
+
+This enables the "leader chart" pattern for complex services.
 
 ## CI/CD Pipeline
 
@@ -177,21 +424,29 @@ vim kustomization.yaml
 
 ```bash
 # Build Docker image
-docker build -t aggregator-service:v1.0.0 .
+docker build -t ashutoshkumar18/aggregator-service:v1.0.0 .
 
-# Push to registry
-docker push your-registry/aggregator-service:v1.0.0
+# Push to Docker Hub
+docker push ashutoshkumar18/aggregator-service:v1.0.0
 ```
 
-### Deploy
+### Release
 
 ```bash
-# Update image tag in values
-cd deploy/base
-vim values.yaml
-# image.tag: v1.0.0
+# 1. Update chart version
+vim charts/aggregator/Chart.yaml
 
-# Commit and push
+# 2. Update image tag in base values
+vim charts/aggregator/values.yaml
+
+# 3. Package and publish chart
+helm package charts/aggregator
+# ... publish to GitHub Pages
+
+# 4. Update environment overlays
+vim deploy/overlays/production/values.yaml
+
+# 5. Commit and push
 git add .
 git commit -m "Release v1.0.0"
 git push
@@ -205,8 +460,16 @@ git push
 **Slack**: #team-aggregator  
 **On-call**: [PagerDuty link]
 
+**Responsibilities**:
+
+- Maintain `charts/aggregator/` Helm chart
+- Update environment overlays in `deploy/overlays/`
+- Publish chart releases to GitHub Pages
+- Monitor and maintain the service
+
 ## Related Documentation
 
-- [Helm + Kustomize Hybrid Guide](../../gitops-v3/helm-charts/HELM_KUSTOMIZE_HYBRID.md)
-- [Base API Chart](https://github.com/ashutosh-18k92/sf-helm-registry)
+- [Adding a New Service](../../gitops-v3/gitops-docs/docs/gitops/guides/adding-new-service.md)
+- [Helm Chart Reference](../../gitops-v3/gitops-docs/docs/gitops/reference/helm-chart-reference.md)
+- [Service-Specific Charts Pattern](../../gitops-v3/gitops-docs/docs/gitops/guides/service-specific-charts.md)
 - [Platform Documentation](../../gitops-v3/README.md)

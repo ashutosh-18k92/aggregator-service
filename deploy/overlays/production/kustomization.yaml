@@ -4,7 +4,7 @@ kind: Kustomization
 # Helm chart inflation - Production uses v0.2.0
 helmCharts:
   - name: api
-    repo: https://ashutosh-18k92.github.io/sf-helm-charts/
+    repo: https://ashutosh-18k92.github.io/aggregator-service/
     version: v0.1.2 # Production can use different version
     releaseName: aggregator
     namespace: super-fortnight
