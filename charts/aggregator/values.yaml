@@ -1,8 +1,8 @@
 # Business/Service Identity
 app:
-  name: aggregator
+  name: aggregator-service
   component: api
-  partOf: ""
+  partOf: superfortnight
 
 # Environment identifier
 environment: default
@@ -15,16 +15,20 @@ containerPort: 3000
 
 # Container image
 image:
-  repository: "api-service"
+  repository: "ashutoshkumar18/aggregator-service"
   pullPolicy: IfNotPresent
   tag: "latest"
 
-imagePullSecrets: []
+# Docker Hub authentication
+imagePullSecrets:
+  - name: dockerhub-secret
 
 # Environment variables
 env:
   PORT: "3000"
-  SERVICE_NAME: "api-service"
+  SERVICE_NAME: "aggregator-service"
+  LOG_LEVEL: "info"
+  NODE_ENV: "production"
 
 envFrom:
   - service-config
@@ -72,10 +76,10 @@ virtualService:
   enabled: true
   namespace: istio-system
   hosts:
-    - awesome-api
+    - aggregator
   domain: ""
   gateways:
-    - superfortnight-gateway
+    - super-fortnight-gateway
   routes:
     - api
   attempts: 3
@@ -113,17 +117,26 @@ podDisruptionBudget:
 
 # Horizontal Pod Autoscaler
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
 
 # Additional volumes
-volumes: []
+volumes:
+  - name: config-volume
+    configMap:
+      name: service-config
+      items:
+        - key: configmap.yaml
+          path: service-config.yaml
 
 # Additional volume mounts
-volumeMounts: []
+volumeMounts:
+  - name: config-volume
+    mountPath: /etc/config
+    readOnly: true
 
 nodeSelector: {}
 
