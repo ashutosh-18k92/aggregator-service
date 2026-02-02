@@ -4,3 +4,6 @@ description: Aggregator service Helm chart
 name: aggregator
 type: application
 version: 0.2.1
+maintainers:
+  - name: Maintainer Name
+    email: maintainer.email@example.com
