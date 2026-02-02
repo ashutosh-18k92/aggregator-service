@@ -1,5 +1,12 @@
 # Dev environment values
 # Combines base service config + development-specific overrides
+
+# Business/Service Identity
+app:
+  name: aggregator-service
+  component: api
+  partOf: superfortnight
+
 environment: development
 # Container port configuration
 containerPort: 3000
