@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  aggregator:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2026-02-02T01:13:02.475796137Z"
+    description: A Helm chart for Kubernetes
+    digest: 984355475941f83281db2c3adf346793648ae7a05463501a9a9c5aeb397d3c59
+    name: aggregator
+    type: application
+    urls:
+    - https://github.com/ashutosh-18k92/aggregator-service/releases/download/aggregator-0.1.0/aggregator-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-02-02T01:13:02.475806514Z"
