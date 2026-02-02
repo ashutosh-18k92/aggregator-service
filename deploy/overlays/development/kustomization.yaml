@@ -4,7 +4,7 @@ kind: Kustomization
 # Helm chart inflation - ArgoCD handles this with --enable-helm
 helmCharts:
   - name: api
-    repo: https://ashutosh-18k92.github.io/sf-helm-charts/
+    repo: https://ashutosh-18k92.github.io/aggregator-service/
     version: v0.1.6
     releaseName: aggregator
     namespace: super-fortnight # -dev
