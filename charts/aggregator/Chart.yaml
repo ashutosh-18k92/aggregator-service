@@ -1,6 +1,10 @@
 apiVersion: v2
-appVersion: 0.1.0
+appVersion: v1
 description: Aggregator service Helm chart
 name: aggregator
 type: application
-version: 0.2.0
+version: 0.2.1
+maintainers:
+  - name: ashutosh-18k92
+    email: ashutosh@example.com
+    url: https://github.com/ashutosh-18k92
