@@ -3,20 +3,21 @@ kind: Kustomization
 
 # Helm chart inflation - Production uses v0.2.0
 helmCharts:
-  - name: api
+  - name: aggregator
     repo: https://ashutosh-18k92.github.io/aggregator-service/
-    version: v0.1.2 # Production can use different version
+    version: v0.2.2 # Production can use different version
     releaseName: aggregator
     namespace: super-fortnight
     valuesFile: values.yaml
     includeCRDs: false
 
-# Namespace
-namespace: super-fortnight
+# Common namespace
+# namespace: super-fortnight
 
 # ConfigMap for production
 configMapGenerator:
   - name: service-config
+    namespace: super-fortnight
     literals:
       - PORT=3000
       - SERVICE_NAME=aggregator-service
