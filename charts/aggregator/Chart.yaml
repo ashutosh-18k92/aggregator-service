@@ -5,5 +5,6 @@ name: aggregator
 type: application
 version: 0.2.1
 maintainers:
-  - name: ashutosh.18k92
-    email: ashutosh.18k92@gmail.com
+  - name: ashutosh-18k92
+    email: ashutosh@example.com
+    url: https://github.com/ashutosh-18k92
