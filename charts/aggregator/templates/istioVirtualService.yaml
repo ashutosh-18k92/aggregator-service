@@ -16,10 +16,9 @@ spec:
   {{- range $index, $host := .Values.virtualService.hosts }}
   - {{ printf "%s.%s" $host $domain }}
   {{- end }}
-  {{- else}}
-  - {{ printf "%s.%s.%s" .Release.Name .Values.env.NODE_ENV $domain }}
-  {{- end}}
-  - {{ printf "%s.%s" (include "api.fullname" .) $domain }}
+  {{- else }}
+  - {{ printf "%s.%s.%s" (include "api.fullname" .) .Values.environment $domain }}
+  {{- end }}
   gateways:
   {{- range $index, $gateway := .Values.virtualService.gateways }}
   - {{ $gateway }}
