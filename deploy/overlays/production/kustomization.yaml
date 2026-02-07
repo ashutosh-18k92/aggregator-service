@@ -5,7 +5,7 @@ kind: Kustomization
 helmCharts:
   - name: aggregator
     repo: https://ashutosh-18k92.github.io/aggregator-service/
-    version: v0.2.2 # Production can use different version
+    version: v0.2.3 # Production can use different version
     releaseName: aggregator
     namespace: super-fortnight
     valuesFile: values.yaml

@@ -197,6 +197,34 @@ helm lint ./charts/aggregator
 helm package ./charts/aggregator
 ```
 
+### Troubleshooting: Prettier and Helm Templates
+
+**Problem**: If you're using Prettier as your YAML formatter, it may incorrectly format Helm template syntax by adding spaces:
+
+- ❌ Prettier formats `{{-` as `{{ -` (incorrect)
+- ✅ Correct Helm syntax is `{{-` (no space)
+
+This causes lint errors like:
+
+```
+Error: templates/service.yaml: unable to parse YAML: error converting YAML to JSON: yaml: line 4: did not find expected node content
+```
+
+**Solution**: The repository includes a `.prettierignore` file that excludes Helm templates from Prettier formatting:
+
+```
+# .prettierignore
+# Helm chart templates - Prettier doesn't understand Helm template syntax
+charts/**/templates/**/*.yaml
+charts/**/templates/**/*.tpl
+```
+
+If you encounter formatting issues, verify that:
+
+1. The `.prettierignore` file exists in the repository root
+2. Your editor respects `.prettierignore` files
+3. Helm template files use `{{-` syntax without spaces
+
 ## Deployment
 
 ### Environment Overlays
