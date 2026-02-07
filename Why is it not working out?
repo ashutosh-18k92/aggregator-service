@@ -1,0 +1,173 @@
+What is working?
+
+- istiod, istio-base, istio-ingress running
+
+- istio ingress gateway as "super-fortnight-gateway" running which is accepting
+
+```yaml
+# super-fortnight-gatway
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: >-
+      ingressgateway-app:networking.istio.io/Gateway:istio-system/super-fortnight-gateway
+  name: super-fortnight-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - "*.api.local"
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+```
+
+- mesh-policies are active
+
+```yaml
+#destination rules
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: >-
+      mesh-policies:networking.istio.io/DestinationRule:super-fortnight/super-fortnight-destination-rule
+  name: super-fortnight-destination-rule
+  namespace: super-fortnight
+spec:
+  host: "*.super-fortnight.svc.cluster.local"
+  trafficPolicy:
+    connectionPool:
+      http:
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 2
+      tcp:
+        maxConnections: 100
+    loadBalancer:
+      simple: LEAST_REQUEST
+    outlierDetection:
+      baseEjectionTime: 30s
+      consecutiveErrors: 3
+      interval: 30s
+    tls:
+      mode: ISTIO_MUTUAL
+```
+
+```yaml
+# peer-authentication
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: >-
+      mesh-policies:security.istio.io/PeerAuthentication:super-fortnight/super-fortnight-peer-authentication
+  name: super-fortnight-peer-authentication
+  namespace: super-fortnight
+spec:
+  mtls:
+    mode: STRICT
+```
+
+- aggregator-service is running
+
+```yaml
+# aggregator-service
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/tracking-id: aggregator-service-development:/Service:super-fortnight/aggregator-service
+  labels:
+    app.kubernetes.io/component: api
+    app.kubernetes.io/instance: aggregator
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: aggregator-service
+    app.kubernetes.io/part-of: superfortnight
+    app.kubernetes.io/version: v1
+    helm.sh/chart: aggregator-0.2.3
+  name: aggregator-service
+  namespace: super-fortnight
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app.kubernetes.io/component: api
+    app.kubernetes.io/instance: aggregator
+    app.kubernetes.io/name: aggregator-service
+    app.kubernetes.io/version: v1
+  type: ClusterIP
+```
+
+- aggregator-deployment is running
+
+```sh
+[2026-02-07T14:32:13.831Z] [aggregator-service] Service listening on port 3000
+[2026-02-07T14:32:13.918Z] [aggregator-service] Rock service URL: http://localhost:3001
+[2026-02-07T14:32:13.918Z] [aggregator-service] Paper service URL: http://localhost:3002
+[2026-02-07T14:32:13.918Z] [aggregator-service] Scissor service URL: http://localhost:3003
+```
+
+- aggregator virtual service is running and referring for aggregator-service.super-fortnight.svc.cluster.local
+
+```virtual-service.yaml
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: '4'
+    argocd.argoproj.io/tracking-id: >-
+      aggregator-service-development:networking.istio.io/VirtualService:istio-system/aggregator-virtualservice
+  name: aggregator-virtualservice
+  namespace: istio-system
+spec:
+  gateways:
+    - super-fortnight-gateway
+  hosts:
+    - aggregator.api.local
+  http:
+    - match:
+        - uri:
+            prefix: /api
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: 5xx,reset,connect-failure,refused-stream
+      route:
+        - destination:
+            host: aggregator-service.super-fortnight.svc.cluster.local
+            port:
+              number: 3000
+    - match:
+        - uri:
+            prefix: /health
+      route:
+        - destination:
+            host: aggregator-service.super-fortnight.svc.cluster.local
+            port:
+              number: 3000
+      timeout: 2s
+    - match:
+        - uri:
+            prefix: /ready
+      route:
+        - destination:
+            host: aggregator-service.super-fortnight.svc.cluster.local
+            port:
+              number: 3000
+      timeout: 2s
+```
+
+Now according the plan:
+
+http://aggregator.api.local/health ingress-gateway -> virtual-service-> aggregator-service should work.
+
+But I get 503 Error: aggregator.api.local is currently unable to handle this request.

@@ -10,7 +10,7 @@ metadata:
     {{- $domain = printf "%s.local" .Values.environment }}
   {{- end }}
   {{- $destinationHost := printf "%s.%s.svc.cluster.local" (include "api.service.name" .) .Release.Namespace}}
-  {{- $destinationPort := default .Values.containerPort .Values.service.targetPort }}
+  {{- $destinationPort := default .Values.containerPort .Values.service.port }}
  
 spec:
   hosts:
