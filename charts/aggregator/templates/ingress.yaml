@@ -3,6 +3,8 @@ kind: VirtualService
 metadata:
   name: {{ include "api.virtualservice.name" . }}
   namespace: {{ .Values.virtualService.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.syncwave.ingress | quote }}
   {{- $domain := .Values.virtualService.domain }}
   {{- if not $domain }}
     {{- $domain = printf "%s.local" .Values.environment }}
