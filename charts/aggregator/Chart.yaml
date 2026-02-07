@@ -3,7 +3,7 @@ appVersion: v1
 description: Aggregator service Helm chart
 name: aggregator
 type: application
-version: 0.2.2
+version: 0.2.3
 maintainers:
   - name: ashutosh-18k92
     email: ashutosh@example.com

@@ -5,15 +5,11 @@ kind: Kustomization
 helmCharts:
   - name: aggregator
     repo: https://ashutosh-18k92.github.io/aggregator-service/
-    version: v0.2.2
+    version: v0.2.3
     releaseName: aggregator
     namespace: super-fortnight # -dev
     valuesFile: values.yaml
     includeCRDs: false
-
-# Namespace
-# Global namespace override removed to allow VirtualService to reside in istio-system
-# while other resources stay in super-fortnight as defined in helmCharts.
 
 # ConfigMap for development
 configMapGenerator:
@@ -25,13 +21,6 @@ configMapGenerator:
       disableNameSuffixHash: true
       annotations:
         argocd.argoproj.io/sync-options: Replace=true
-  # - name: service-config
-  #   namespace: super-fortnight
-  #   literals:
-  #     - PORT=3000
-  #     - SERVICE_NAME=aggregator-service
-  #     - LOG_LEVEL=debug
-  #     - NODE_ENV=development
 
 # Patches for development
 patches:
