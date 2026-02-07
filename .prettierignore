@@ -1,0 +1,3 @@
+# Helm chart templates - Prettier doesn't understand Helm template syntax
+charts/**/templates/**/*.yaml
+charts/**/templates/**/*.tpl
