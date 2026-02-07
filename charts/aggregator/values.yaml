@@ -19,7 +19,11 @@ syncwave:
 replicaCount: 1
 
 # Container port
-containerPort: 3000
+containerPort: 80
+# Service port
+servicePort: 3000
+
+# TRAFFIC FLOW gateway -> virtual-service -> containerPort -> servicePort
 
 # Container image
 image:
@@ -76,8 +80,8 @@ securityContext: {}
 # Kubernetes Service
 service:
   type: ClusterIP
-  port: 80
-  targetPort: 3000
+  port: 80 # overrid by containerPort
+  targetPort: 3000 # overrid by servicePort
 
 # Istio VirtualService
 virtualService:

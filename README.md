@@ -133,6 +133,28 @@ charts/aggregator/
     └── _helpers.tpl
 ```
 
+## Deployment order
+
+The standard and recommended order for deploying the specified Kubernetes manifests is:
+ServiceAccount
+Service
+Deployment
+HorizontalPodAutoscaler (HPA)
+Ingress
+Rationale for the Order
+Deploying in this sequence ensures that dependent objects exist before the controllers or resources that reference them are created.
+ServiceAccount
+This is typically the first resource to ensure it's available for other components, specifically the Deployment, to use for defining permissions for the pods it manages [1, 2].
+Service
+The Service defines how to access your pods and gives them a stable IP address and DNS name [1, 2]. While it can be created before or concurrently with the Deployment it targets (it will simply wait for pods to match its selector), it must exist before other resources like Ingress or the HPA can reference it [1].
+Deployment
+The Deployment manages the creation and scaling of your application's pods [1, 2]. It requires the ServiceAccount to be present if a custom one is specified. Once the pods managed by the Deployment are running and healthy, the Service can route traffic to them.
+HorizontalPodAutoscaler (HPA)
+The HPA is responsible for automatically scaling the number of pods in the Deployment (or other scalable resource) based on observed metrics like CPU utilization [1, 2]. It depends entirely on the existence of the Deployment it is designed to scale.
+Ingress
+The Ingress manages external access to the services within the cluster, typically HTTP routing [1, 2]. It must reference an existing Service to know where to direct incoming traffic. Deploying it last ensures all internal components are ready to receive traffic once the ingress controller configures the external access rules.
+Adhering to this order minimizes errors related to missing dependencies during the deployment process [2].
+
 ### Base Values
 
 The `charts/aggregator/values.yaml` file contains the base configuration:
