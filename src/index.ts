@@ -39,9 +39,6 @@ function getWinner(numbers: { rock: number; paper: number; scissor: number }): s
 app.get("/api/play", async (req: Request, res: Response) => {
   const startTime = Date.now();
   console.log(`[${new Date().toISOString()}] [${SERVICE_NAME}] Received request to /api/sum`);
-  console.log("rock service @", ROCK_SERVICE_URL);
-  console.log("paper service @", PAPER_SERVICE_URL);
-  console.log("scissor service @", SCISSOR_SERVICE_URL);
   try {
     // Call all three services in parallel
     console.log(
@@ -103,4 +100,13 @@ app.listen(PORT, () => {
   console.log(
     `[${new Date().toISOString()}] [${SERVICE_NAME}] Scissor service URL: ${SCISSOR_SERVICE_URL}`,
   );
+  console.log(`\n${"=".repeat(80)}`);
+  console.log(`[${new Date().toISOString()}] [${SERVICE_NAME}] All Environment Variables:`);
+  console.log(`${"=".repeat(80)}`);
+  Object.keys(process.env)
+    .sort()
+    .forEach((key) => {
+      console.log(`  ${key}=${process.env[key]}`);
+    });
+  console.log(`${"=".repeat(80)}\n`);
 });

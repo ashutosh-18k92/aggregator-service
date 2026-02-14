@@ -37,13 +37,22 @@ imagePullSecrets:
 
 # Environment variables
 env:
-  PORT: "3000"
-  SERVICE_NAME: "aggregator-service"
-  LOG_LEVEL: "info"
-  NODE_ENV: "production"
+  - name: TEST_ENV
+    value: "TEST ENV VAR OK"
+  - name: DB_PASS
+    valueFrom:
+      secretKeyRef:
+        name: dev-api-key-sealed
+        key: database-password
 
 envFrom:
-  - service-config
+  - configMapRef: # Load from ConfigMap
+      name: service-config
+  - secretRef: # Load from Secret
+      name: dev-api-key-sealed
+  # - prefix: APP_ # Optional: prefix all vars
+  #   configMapRef:
+  #     name: app-config
 
 # Resource limits
 resources:

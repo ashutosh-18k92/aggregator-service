@@ -1,5 +1,8 @@
+LOG_LEVEL: "info"
+NODE_ENV: "development"
+PORT: "3000"
+SERVICE_NAME: "aggregator-service"
+
 ROCK_SERVICE_URL: "http://rock-service:3001"
 PAPER_SERVICE_URL: "http://paper-service:3002"
 SCISSOR_SERVICE_URL: "http://scissor-service:3003"
-LOG_LEVEL: "info"
-NODE_ENV: "development"
