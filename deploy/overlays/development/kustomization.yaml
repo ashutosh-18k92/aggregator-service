@@ -11,6 +11,9 @@ helmCharts:
     valuesFile: values.yaml
     includeCRDs: false
 
+resources:
+  - sealed-secrets/dev-api-key-sealed.yaml
+
 # ConfigMap for development
 configMapGenerator:
   - name: service-config
