@@ -45,14 +45,12 @@ env:
         name: dev-api-key-sealed
         key: database-password
 
+# envFrom allows loading all keys from ConfigMaps and Secrets as environment variables
 envFrom:
-  - configMapRef: # Load from ConfigMap
-      name: service-config
-  - secretRef: # Load from Secret
-      name: dev-api-key-sealed
-  # - prefix: APP_ # Optional: prefix all vars
-  #   configMapRef:
-  #     name: app-config
+  configMaps:
+    - name: service-config
+  secrets:
+    - name: dev-api-key-sealed
 
 # Resource limits
 resources:
