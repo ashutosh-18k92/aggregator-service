@@ -46,16 +46,17 @@ spec:
               protocol: TCP
           {{- with .Values.env }}
           env:
-            {{- range $key, $value := $.Values.env }}
-            - name: {{ $key }}
-              value: {{ $value | quote }}
-            {{- end }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.envFrom }}
+          {{- if or .Values.envFrom.configMaps .Values.envFrom.secrets }}
           envFrom:
-            {{- range $index, $value := $.Values.envFrom }}
+            {{- range .Values.envFrom.configMaps }}
             - configMapRef:
-                name: {{ $value }}
+                name: {{ .name }}
+            {{- end }}
+            {{- range .Values.envFrom.secrets }}
+            - secretRef:
+                name: {{ .name }}
             {{- end }}
           {{- end }}
           {{- with .Values.healthCheck.livenessProbe }}
