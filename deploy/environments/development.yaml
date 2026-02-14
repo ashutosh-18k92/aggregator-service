@@ -1,3 +1,5 @@
 # Development Environment Configuration
 env: development
+overlay: development # the name of the overlay directory
+targetRevision: development # the branch or release to refer
 namespace: super-fortnight #-dev
