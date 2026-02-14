@@ -3,6 +3,20 @@ entries:
   aggregator:
   - apiVersion: v2
     appVersion: v1
+    created: "2026-02-14T22:50:06.386024009Z"
+    description: Aggregator service Helm chart
+    digest: ee0be3b954c0c3e22f3343dff932eb4d4ad7f914c963fca5777f8f414d8d602a
+    maintainers:
+    - email: ashutosh@example.com
+      name: ashutosh-18k92
+      url: https://github.com/ashutosh-18k92
+    name: aggregator
+    type: application
+    urls:
+    - https://github.com/ashutosh-18k92/aggregator-service/releases/download/aggregator-0.2.5/aggregator-0.2.5.tgz
+    version: 0.2.5
+  - apiVersion: v2
+    appVersion: v1
     created: "2026-02-07T15:22:44.529381609Z"
     description: Aggregator service Helm chart
     digest: 1fd21e5926b025250d10f883b18ac7275abbc52cfd1130714a31325c7e3dd632
@@ -77,4 +91,4 @@ entries:
     urls:
     - https://github.com/ashutosh-18k92/aggregator-service/releases/download/aggregator-0.1.0/aggregator-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-07T15:22:44.529404521Z"
+generated: "2026-02-14T22:50:06.386053225Z"
