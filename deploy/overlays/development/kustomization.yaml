@@ -13,17 +13,7 @@ helmCharts:
 
 resources:
   - sealed-secrets/dev-secret-sealed.yaml
-
-# ConfigMap for development
-configMapGenerator:
-  - name: service-config
-    namespace: super-fortnight
-    files:
-      - config/configmap.yaml
-    options:
-      disableNameSuffixHash: true
-      annotations:
-        argocd.argoproj.io/sync-options: Replace=true
+  - config/service-config.yaml
 
 # Patches for development
 patches:
