@@ -8,13 +8,6 @@ image:
   tag: "dev-latest"
   pullPolicy: Always
 
-# Development environment variables
-env:
-  - name: LOG_LEVEL
-    value: "debug"
-  - name: NODE_ENV
-    value: "development"
-
 # Development domain
 virtualService:
   domain: "api.local"

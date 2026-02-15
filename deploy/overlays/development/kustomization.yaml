@@ -15,6 +15,15 @@ resources:
   - sealed-secrets/dev-secret-sealed.yaml
   - config/service-config.yaml
 
+configMapGenerator:
+  - name: service-config
+    namespace: super-fortnight
+    files:
+      - config/configmap.yaml
+    options:
+      disableNameSuffixHash: true
+
+
 # Patches for development
 patches:
   - target:
