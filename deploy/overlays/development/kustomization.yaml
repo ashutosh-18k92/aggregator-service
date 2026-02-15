@@ -5,7 +5,7 @@ kind: Kustomization
 helmCharts:
   - name: aggregator
     repo: https://ashutosh-18k92.github.io/aggregator-service/
-    version: v0.2.8
+    version: v0.2.9
     releaseName: aggregator
     namespace: super-fortnight # -dev
     valuesFile: values.yaml
@@ -22,7 +22,6 @@ configMapGenerator:
       - config/configmap.yaml
     options:
       disableNameSuffixHash: true
-
 
 # Patches for development
 patches:

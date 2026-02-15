@@ -42,7 +42,7 @@ env:
   - name: DB_PASS
     valueFrom:
       secretKeyRef:
-        name: dev-api-key-sealed
+        name: dev-sealed-secret
         key: database-password
 
 # envFrom allows loading all keys from ConfigMaps and Secrets as environment variables
