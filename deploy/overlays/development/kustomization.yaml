@@ -5,14 +5,14 @@ kind: Kustomization
 helmCharts:
   - name: aggregator
     repo: https://ashutosh-18k92.github.io/aggregator-service/
-    version: v0.2.7
+    version: v0.2.8
     releaseName: aggregator
     namespace: super-fortnight # -dev
     valuesFile: values.yaml
     includeCRDs: false
 
 resources:
-  - sealed-secrets/dev-api-key-sealed.yaml
+  - sealed-secrets/dev-secret-sealed.yaml
 
 # ConfigMap for development
 configMapGenerator:

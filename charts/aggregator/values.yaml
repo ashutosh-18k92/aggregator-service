@@ -50,7 +50,7 @@ envFrom:
   configMaps:
     - name: service-config
   secrets:
-    - name: dev-api-key-sealed
+    - name: dev-sealed-secret
 
 # Resource limits
 resources:
