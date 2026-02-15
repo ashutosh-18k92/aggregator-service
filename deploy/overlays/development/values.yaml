@@ -15,6 +15,24 @@ virtualService:
 # Single replica for development
 replicaCount: 1
 
+# Environment variables
+env:
+  - name: TEST_ENV
+    value: "TEST ENV VAR OK"
+  - name: DB_PASS
+    valueFrom:
+      secretKeyRef:
+        name: dev-sealed-secret
+        key: database-password
+
+# envFrom allows loading all keys from ConfigMaps and Secrets as environment variables
+envFrom:
+  configMaps:
+    - name: service-config
+    - name: service-configmap
+  secrets:
+    - name: dev-sealed-secret
+
 # Lower resources for development
 resources:
   requests:
