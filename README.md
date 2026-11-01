@@ -106,6 +106,10 @@ SERVICE_NAME=aggregator                      # Service name
 ROCK_SERVICE_URL=http://localhost:3001       # Rock service endpoint
 PAPER_SERVICE_URL=http://localhost:3002      # Paper service endpoint
 SCISSOR_SERVICE_URL=http://localhost:3003    # Scissor service endpoint
+KAFKA_BROKERS=                               # Optional (Stage 7). Comma-separated bootstrap
+                                              # list, e.g. game-events-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092
+                                              # Unset = event publishing is skipped entirely.
+KAFKA_TOPIC=game-events                      # Optional (Stage 7). Topic to publish game results to.
 ```
 
 ### API Endpoints

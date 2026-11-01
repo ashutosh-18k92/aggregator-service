@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import axios from "axios";
+import { Kafka, Producer } from "kafkajs";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,6 +10,40 @@ const SERVICE_NAME = process.env.SERVICE_NAME || "aggregator";
 const ROCK_SERVICE_URL = process.env.ROCK_SERVICE_URL || "http://localhost:3001";
 const PAPER_SERVICE_URL = process.env.PAPER_SERVICE_URL || "http://localhost:3002";
 const SCISSOR_SERVICE_URL = process.env.SCISSOR_SERVICE_URL || "http://localhost:3003";
+
+// Kafka (Stage 7: event streaming) - optional, degrades gracefully when unset
+const KAFKA_BROKERS = process.env.KAFKA_BROKERS;
+const KAFKA_TOPIC = process.env.KAFKA_TOPIC || "game-events";
+let producer: Producer | undefined;
+
+if (KAFKA_BROKERS) {
+  const kafka = new Kafka({
+    clientId: SERVICE_NAME,
+    brokers: KAFKA_BROKERS.split(","),
+    retry: { retries: 3 },
+  });
+  producer = kafka.producer();
+  producer
+    .connect()
+    .then(() => console.log(`[${new Date().toISOString()}] [${SERVICE_NAME}] Connected to Kafka: ${KAFKA_BROKERS}`))
+    .catch((err) =>
+      console.error(`[${new Date().toISOString()}] [${SERVICE_NAME}] Kafka connect failed:`, err.message),
+    );
+} else {
+  console.log(`[${new Date().toISOString()}] [${SERVICE_NAME}] KAFKA_BROKERS not set, event publishing disabled`);
+}
+
+async function publishGameEvent(event: Record<string, unknown>): Promise<void> {
+  if (!producer) return;
+  try {
+    await producer.send({
+      topic: KAFKA_TOPIC,
+      messages: [{ key: String(event.winner), value: JSON.stringify(event) }],
+    });
+  } catch (err: any) {
+    console.error(`[${new Date().toISOString()}] [${SERVICE_NAME}] Failed to publish game event:`, err.message);
+  }
+}
 
 app.use(express.json());
 
@@ -68,7 +103,7 @@ app.get("/api/play", async (req: Request, res: Response) => {
       `[${new Date().toISOString()}] [${SERVICE_NAME}] Calculated sum: ${sum}, Duration: ${duration}ms`,
     );
 
-    res.json({
+    const result = {
       sum,
       winner,
       rockNumber,
@@ -76,7 +111,11 @@ app.get("/api/play", async (req: Request, res: Response) => {
       scissorNumber,
       duration: `${duration}ms`,
       timestamp: new Date().toISOString(),
-    });
+    };
+
+    void publishGameEvent(result);
+
+    res.json(result);
   } catch (error: any) {
     const duration = Date.now() - startTime;
     console.error(`[${new Date().toISOString()}] [${SERVICE_NAME}] Error occurred:`, error.message);
